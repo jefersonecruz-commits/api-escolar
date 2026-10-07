@@ -12,36 +12,34 @@ datasource db {
   provider = "sqlite"
 }
 
-model aluno {
-  id Int @id @default(autoincrement())
-  matricula String @unique
-  cpf String @unique
-  nome String 
+model Aluno {
+  id         Int       @id @default(autoincrement())
+  matricula  String    @unique
+  cpf        String    @unique
+  nome       String
   nascimento DateTime?
-  email String @unique
-  telefone Int?
-  endereco String?
+  email      String    @unique
+  telefone   Int?
+  endereco   String?
+  cursos     Curso[]
 }
-model curso {
-  id Int @id @default(autoincrement())
-  nome String 
+
+model Curso {
+  id           Int     @id @default(autoincrement())
+  nome         String  @unique
   cargaHoraria Int
-  descricao String
+  descricao    String
+  alunos       Aluno[]
 }
-model funcionario {
-  id Int @id @default(autoincrement())
-  nome String 
-  email String @unique
-  cargo String
+
+model Funcionario {
+  id         Int       @id @default(autoincrement())
+  nome       String
+  email      String    @unique
+  cargo      String
   nascimento DateTime?
-  cpf String @unique
-  senha String
-  telefone Int?
-  endereco String?
-}
-model matriculas {
-  id Int @id @default(autoincrement())
-  nome String 
-  cargaHoraria Int
-  descricao String
+  cpf        String    @unique
+  senha      String
+  telefone   Int?
+  endereco   String?
 }
