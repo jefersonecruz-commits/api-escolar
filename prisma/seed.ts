@@ -6,7 +6,7 @@ async function main() {
         data: {
         nome: "jef",
         email: "jef@email.com",
-        cargo: "ADMIN",k
+        cargo: "ADMIN",
         cpf: "123456778912",
         senha: bcrypt.hashSync("123456", +process.env.BCRYPT_ROUNDS!),
         },

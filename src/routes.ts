@@ -3,7 +3,7 @@ import alunoController from "./controllers/aluno";
 import cursoController from "./controllers/curso";
 import matriculaController from "./controllers/matricula";
 import funcionarioController from "./controllers/funcionario";
-  import funcionario from "./controllers/funcionario";
+import { authentication } from "./middlewares/authentication";
 
 // Inicializa o router
 const routes = Router();
@@ -30,5 +30,5 @@ routes.delete("/cursos/:id", cursoController.delete);
 routes.post("/matriculas/:id", matriculaController.create);
 routes.get("/matriculas/:id", matriculaController.delete);
 
-routes.post("login", funcionarioController.login)
+routes.post("/login", funcionarioController.login);
 export default routes;
