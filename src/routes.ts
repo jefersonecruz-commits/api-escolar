@@ -27,8 +27,8 @@ routes.post("/cursos", cursoController.create);
 routes.put("/cursos/:id", cursoController.update);
 routes.delete("/cursos/:id", cursoController.delete);
 
-routes.post("/matriculas/:id", matriculaController.create);
-routes.get("/matriculas/:id", matriculaController.delete);
+routes.post("/matriculas/:id", authentication, matriculaController.create);
+routes.get("/matriculas/:id", authentication, matriculaController.delete);
 
 routes.post("/login", funcionarioController.login);
 export default routes;
