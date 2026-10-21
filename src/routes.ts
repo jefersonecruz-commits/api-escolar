@@ -3,40 +3,39 @@ import alunoController from "./controllers/aluno";
 import cursoController from "./controllers/curso";
 import matriculaController from "./controllers/matricula";
 import funcionarioController from "./controllers/funcionario";
-<<<<<<< HEAD
 import { authentication } from "./middlewares/authentication";
-=======
->>>>>>> 46495e4afb1945cc22893a60fa8f251fa628d214
+import { isAdmin, isAdminOrHimself } from "./middlewares/permissions";
 
-// Inicializa o router
 const routes = Router();
 
-// Rota inicial para verificar se o servidor está rodando
 routes.get("/", (request, response) => {
-  return response.status(200).json({ message: "Hello World!" });
+    return response.status(200).json({ message: "Hello, World!" });
 });
 
 // Rotas de alunos
-routes.get("/alunos", alunoController.list);
-routes.get("/alunos/:id", alunoController.getById);
-routes.post("/alunos", alunoController.create);
-routes.put("/alunos/:id", alunoController.update);
-routes.delete("/alunos/:id", alunoController.delete);
+routes.get("/alunos", authentication, alunoController.list);
+routes.get("/alunos/:id", authentication, alunoController.getById);
+routes.post("/alunos", authentication, alunoController.create);
+routes.put("/alunos/:id", authentication, alunoController.update);
+routes.delete("/alunos/:id", authentication, alunoController.delete);
 
 // Rotas de cursos
-routes.get("/cursos", cursoController.list);
-routes.get("/cursos/:id", cursoController.getById);
-routes.post("/cursos", cursoController.create);
-routes.put("/cursos/:id", cursoController.update);
-routes.delete("/cursos/:id", cursoController.delete);
+routes.get("/cursos", authentication, cursoController.list);
+routes.get("/cursos/:id", authentication, cursoController.getById);
+routes.post("/cursos", authentication, cursoController.create);
+routes.put("/cursos/:id", authentication, cursoController.update);
+routes.delete("/cursos/:id", authentication, cursoController.delete);
 
-<<<<<<< HEAD
+// Rotas de matrícula
 routes.post("/matriculas/:id", authentication, matriculaController.create);
-routes.get("/matriculas/:id", authentication, matriculaController.delete);
-=======
-routes.post("/matriculas/:id", matriculaController.create);
-routes.get("/matriculas/:id", matriculaController.delete);
->>>>>>> 46495e4afb1945cc22893a60fa8f251fa628d214
+routes.delete("/matriculas/:id", authentication, matriculaController.delete);
 
-routes.post("/login", funcionarioController.login);
+// Rotas de funcionários
+routes.post ("/login", funcionarioController.login);
+routes.get("/funcionarios", authentication, isAdmin, funcionarioController.list);
+routes.get("/funcionarios/:id", authentication, isAdminOrHimself, funcionarioController.getById);
+routes.post("/funcionarios", authentication, isAdmin, funcionarioController.create);
+routes.put("/funcionarios/:id", authentication, isAdminOrHimself, funcionarioController.update);
+routes.delete("/funcionarios/:id", authentication, isAdmin, funcionarioController.delete);
+
 export default routes;

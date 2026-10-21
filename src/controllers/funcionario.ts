@@ -1,9 +1,8 @@
-<<<<<<< HEAD
 import { Request, Response } from "express";
-import { prisma } from "../../config/prisma";
-import jwt from "jsonwebtoken";
-import { handleErrors } from "../helpers/handleErrors";
 import bcrypt from "bcrypt";
+import { prisma } from "../../config/prisma";
+import { handleErrors } from "../helpers/handleErrors";
+import jwt from "jsonwebtoken";
 
 export default {
     login: async (request: Request, response: Response) => {
@@ -11,64 +10,145 @@ export default {
             const { email, senha } = request.body;
 
             if (!email || !senha) {
-                return response.status(400).json("dados incompletos");
+                return response
+                    .status(400)
+                    .json("Email ou senha não fornecidos.");
             }
 
             const funcionario = await prisma.funcionario.findUnique({
-                where: {
-                    email,
-                },
+                where: { email },
             });
 
-            if (!funcionario || !bcrypt.compareSync(senha, funcionario.senha)) {
-                return response.status(404).json("email ou senha invalidos");
+            if (
+                !funcionario ||
+                !bcrypt.compareSync(senha, funcionario.senha)
+            ) {
+                return response
+                    .status(401)
+                    .json("Email e/ou senha inválidos.");
             }
 
-            const token = jwt.sign({id: funcionario.id, cargo: funcionario.cargo}, process.env.JWT_SECRET!,{
-                expiresIn: "1d",
-            },
-        );
+            const token = jwt.sign(
+                { id: funcionario.id, cargo: funcionario.cargo },
+                process.env.JWT_SECRET!,
+                { expiresIn: "1d" }
+            );
 
-        return response.status(200).json(token);
-    } catch (e) {
+            return response.status(200).json({ token });
+        } catch (e) {
             return handleErrors(e, response);
         }
-    }
-=======
-import { Request, Response } from "express";
-import { prisma } from "../../config/prisma";
-import jwt from "jsonwebtoken";
-import { handleErrors } from "../helpers/handleErrors";
-import bcrypt from "bcrypt";
+    },
 
-export default {
-    login: async (request: Request, response: Response) => {
+    list: async (request: Request, response: Response) => {
         try {
-            const { email, senha } = request.body;
+            const funcionarios = await prisma.funcionario.findMany({
+                omit: {
+                    senha: true,
+                }
+            });
 
-            if (!email || !senha) {
-                return response.status(400).json("dados incompletos");
-            }
+            return response.status(200).json(funcionarios);
+        } catch (e) {
+            handleErrors(e, response);
+        }
+    },
 
+    getById: async (request: Request, response: Response) => {
+        try {
+            const { id } = request.params;
             const funcionario = await prisma.funcionario.findUnique({
                 where: {
-                    email,
+                    id: +id,
+                },
+                omit: {
+                    senha: true,
                 },
             });
 
-            if (!funcionario || !bcrypt.compareSync(senha, funcionario.senha)) {
-                return response.status(404).json("email ou senha invalidos");
-            }
-
-            const token = jwt.sign({id: funcionario.id, cargo: funcionario.cargo}, process.env.JWT_SECRET!,{
-                expiresIn: "1d",
-            },
-        );
-
-        return response.status(200).json(token);
-    } catch (e) {
+            return response.status(200).json(funcionario);
+        } catch (e) {
             return handleErrors(e, response);
         }
-    }
->>>>>>> 46495e4afb1945cc22893a60fa8f251fa628d214
+    },
+
+    create: async (request: Request, response: Response) => {
+        try {
+            const { nome, email, cargo, cpf, senha, nascimento, telefone, endereco } = request.body;
+
+            if (!nome || !email || !cargo || !cpf || !senha) {
+                return response.status(400).json("Dados do funcionário incompletos.")
+            }
+            const funcionario = await prisma.funcionario.create({
+                data: {
+                    nome,
+                    email,
+                    cargo,
+                    cpf,
+                    nascimento: nascimento ? new Date (nascimento) : undefined,
+                    telefone,
+                    endereco,
+                    senha: bcrypt.hashSync(senha, +process.env.BCRYPT_ROUNDS!),
+                },
+                omit: {
+                    senha: true,
+                }
+            })
+            
+            
+
+            return response.status(201).json(funcionario);
+        } catch (e) {
+            return handleErrors(e, response);
+        }
+    },
+
+    update: async (request: Request, response: Response) => {
+        try {
+            const { id } = request.params;
+            const { nome, email, cargo, cpf, senha, nascimento, telefone, endereco } = request.body;
+
+            const funcionario = await prisma.funcionario.update({
+                where: {
+                    id: +id,
+                },
+                data: {
+                    nome,
+                    email,
+                    cargo,
+                    cpf,
+                    nascimento: nascimento ? new Date(nascimento) : undefined,
+                    telefone,
+                    endereco,
+                    senha: senha ? bcrypt.hashSync(senha, +process.env.BCRYPT_ROUNDS!) : undefined,
+                },
+                omit: {
+                    senha: true,
+                }
+            });
+
+            return response.status(200).json(funcionario);
+        } catch (e) {
+            return handleErrors(e, response);
+        }
+    },
+
+    delete: async (request: Request, response: Response) => {
+        try {
+            const { id } = request.params;
+
+            const funcionario = await prisma.funcionario.delete({
+                where: {
+                    id: +id,
+                },
+                omit: {
+                    senha: true,
+                }
+            });
+
+            return response.status(200).json(funcionario);
+        } catch (e) {
+            return handleErrors(e, response);
+        }
+    },
 }
